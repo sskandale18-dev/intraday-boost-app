@@ -111,7 +111,7 @@ sector_map = {
 # Scraper
 # =========================
 def scrape_intraday_boost():
-    url = "YOUR_TARGET_URL_HERE"  # 🔴 Replace with actual site URL
+    url = "https://tradefinder.in/market-pulse"  # 🔴 Replace with actual site URL
     driver.get(url)
     time.sleep(5)  # wait for table to load
 
