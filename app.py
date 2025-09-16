@@ -1,11 +1,12 @@
 import time
 import threading
 import pandas as pd
+from flask import Flask, render_template_string, Response
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from flask import Flask, render_template_string, Response
 
 # =========================
 # Flask App Setup
@@ -21,36 +22,36 @@ interval = 180  # scrape every 3 minutes
 # =========================
 def init_driver():
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")  # run Chrome headless
+    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-software-rasterizer")
 
-    # Adjust if chromedriver is installed elsewhere
-    return webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+    # If chromedriver is in PATH, no need to specify Service path
+    return webdriver.Chrome(options=chrome_options)
 
 driver = init_driver()
 
 # =========================
-# Sector Map (shortened for demo, add full list here)
+# Sector Map (shortened – extend as needed)
 # =========================
 sector_map = {
-    "ADANIGREEN": "Energy", "IOC": "Energy", "POWERGRID": "Energy",
-    "TATAMOTORS": "Auto", "MARUTI": "Auto",
-    "INFY": "IT", "TCS": "IT",
-    "SUNPHARMA": "Pharma", "CIPLA": "Pharma",
-    "HDFCBANK": "Pvt_Bank", "ICICIBANK": "Pvt_Bank",
-    "ITC": "FMCG", "NESTLEIND": "FMCG",
-    "TATASTEEL": "Metal", "JSWSTEEL": "Metal",
-    "SBIN": "Psu_Bank", "BANKBARODA": "Psu_Bank",
+    "ADANIGREEN": "Energy","IOC": "Energy","POWERGRID": "Energy","TATAPOWER": "Energy",
+    "TATAMOTORS": "Auto","MARUTI": "Auto","M&M": "Auto",
+    "INFY": "IT","TCS": "IT","WIPRO": "IT","HCLTECH": "IT",
+    "SUNPHARMA": "Pharma","CIPLA": "Pharma","DRREDDY": "Pharma",
+    "HDFCBANK": "Pvt_Bank","ICICIBANK": "Pvt_Bank","KOTAKBANK": "Pvt_Bank",
+    "ITC": "FMCG","NESTLEIND": "FMCG","HINDUNILVR": "FMCG",
+    "TATASTEEL": "Metal","JSWSTEEL": "Metal","HINDALCO": "Metal",
+    "SBIN": "Psu_Bank","BANKBARODA": "Psu_Bank","PNB": "Psu_Bank",
 }
 
 # =========================
 # Scraper
 # =========================
 def scrape_intraday_boost():
-    url = "YOUR_TARGET_URL_HERE"  # 🔴 replace with actual site URL
+    url = "YOUR_TARGET_URL_HERE"  # 🔴 Replace with actual site URL
     driver.get(url)
     time.sleep(5)  # wait for table to load
 
