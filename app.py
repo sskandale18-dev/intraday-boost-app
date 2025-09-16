@@ -1,0 +1,196 @@
+import time
+import threading
+import pandas as pd
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from flask import Flask, render_template_string, Response
+
+# =========================
+# Flask App Setup
+# =========================
+app = Flask(__name__)
+
+latest_df = pd.DataFrame()
+previous_df = pd.DataFrame()
+interval = 180  # scrape every 3 minutes
+
+# =========================
+# Headless Selenium Setup
+# =========================
+def init_driver():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless=new")  # run Chrome headless
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-software-rasterizer")
+
+    # Adjust if chromedriver is installed elsewhere
+    return webdriver.Chrome(service=Service("/usr/bin/chromedriver"), options=chrome_options)
+
+driver = init_driver()
+
+# =========================
+# Sector Map (shortened for demo, add full list here)
+# =========================
+sector_map = {
+    "ADANIGREEN": "Energy", "IOC": "Energy", "POWERGRID": "Energy",
+    "TATAMOTORS": "Auto", "MARUTI": "Auto",
+    "INFY": "IT", "TCS": "IT",
+    "SUNPHARMA": "Pharma", "CIPLA": "Pharma",
+    "HDFCBANK": "Pvt_Bank", "ICICIBANK": "Pvt_Bank",
+    "ITC": "FMCG", "NESTLEIND": "FMCG",
+    "TATASTEEL": "Metal", "JSWSTEEL": "Metal",
+    "SBIN": "Psu_Bank", "BANKBARODA": "Psu_Bank",
+}
+
+# =========================
+# Scraper
+# =========================
+def scrape_intraday_boost():
+    url = "YOUR_TARGET_URL_HERE"  # 🔴 replace with actual site URL
+    driver.get(url)
+    time.sleep(5)  # wait for table to load
+
+    table = driver.find_element(By.ID, "depth_2_intradayboost")
+    rows = table.find_elements(By.TAG_NAME, "tr")
+    data = []
+    for row in rows:
+        cols = row.find_elements(By.TAG_NAME, "td")
+        cols = [col.text.strip() for col in cols]
+        if cols:
+            data.append(cols)
+    df = pd.DataFrame(data, columns=["Symbol", "LTP", "PreC", "Perc", "RFac"])
+    return df
+
+
+def process_data(df, prev_df):
+    df = df.copy()
+    df["Sector"] = df["Symbol"].map(sector_map).fillna("")
+
+    if prev_df.empty:
+        df["Old Position"] = "New"
+        df["Movement"] = "New"
+        return df
+
+    prev_symbols = prev_df["Symbol"].tolist()
+    old_positions, movements = [], []
+
+    for idx, sym in enumerate(df["Symbol"], start=1):
+        if sym not in prev_symbols:
+            old_positions.append("New")
+            movements.append("New")
+        else:
+            old_idx = prev_symbols.index(sym) + 1
+            old_positions.append(old_idx)
+            if idx < old_idx:
+                movements.append("Moved Up")
+            elif idx > old_idx:
+                movements.append("Moved Down")
+            else:
+                movements.append("Same")
+
+    df["Old Position"] = old_positions
+    df["Movement"] = movements
+    return df
+
+
+def background_scraper():
+    global latest_df, previous_df
+    while True:
+        try:
+            raw_df = scrape_intraday_boost()
+            processed_df = process_data(raw_df, previous_df)
+            previous_df = raw_df
+            latest_df = processed_df
+            print(f"✅ Scraped at {time.strftime('%H:%M:%S')}")
+        except Exception as e:
+            print("⚠️ Error scraping:", e)
+        time.sleep(interval)
+
+# =========================
+# Flask Routes
+# =========================
+HTML_TEMPLATE = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Intraday Boost Monitor</title>
+    <meta http-equiv="refresh" content="60">
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #f2f2f2; }
+        h1 { text-align: center; }
+        .up { background-color: #c6efce; }
+        .down { background-color: #ffc7ce; }
+        .same { background-color: #d9d9d9; }
+        .new { background-color: #bdd7ee; }
+    </style>
+</head>
+<body>
+    <h1>📈 Intraday Boost Monitor</h1>
+    {% if not df.empty %}
+        <p>Last updated: {{ updated }}</p>
+        <table>
+            <tr>
+                {% for col in df.columns %}
+                    <th>{{ col }}</th>
+                {% endfor %}
+            </tr>
+            {% for row in df.values %}
+                <tr>
+                    {% for i, col in enumerate(row) %}
+                        {% if df.columns[i] == "Movement" %}
+                            {% if col == "Moved Up" %}
+                                <td class="up">{{ col }}</td>
+                            {% elif col == "Moved Down" %}
+                                <td class="down">{{ col }}</td>
+                            {% elif col == "Same" %}
+                                <td class="same">{{ col }}</td>
+                            {% elif col == "New" %}
+                                <td class="new">{{ col }}</td>
+                            {% else %}
+                                <td>{{ col }}</td>
+                            {% endif %}
+                        {% else %}
+                            <td>{{ col }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No data yet...</p>
+    {% endif %}
+    <br>
+    <a href="/download">⬇️ Download CSV</a>
+</body>
+</html>
+"""
+
+@app.route("/")
+def home():
+    return render_template_string(HTML_TEMPLATE, df=latest_df, updated=time.strftime("%H:%M:%S"))
+
+@app.route("/download")
+def download_csv():
+    if latest_df.empty:
+        return "No data yet"
+    csv_data = latest_df.to_csv(index=False)
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-disposition": "attachment; filename=intraday_boost.csv"}
+    )
+
+# =========================
+# Run App
+# =========================
+if __name__ == "__main__":
+    t = threading.Thread(target=background_scraper, daemon=True)
+    t.start()
+    app.run(host="0.0.0.0", port=5000, debug=False)
