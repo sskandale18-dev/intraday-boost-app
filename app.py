@@ -37,14 +37,74 @@ driver = init_driver()
 # Sector Map (shortened – extend as needed)
 # =========================
 sector_map = {
-    "ADANIGREEN": "Energy","IOC": "Energy","POWERGRID": "Energy","TATAPOWER": "Energy",
-    "TATAMOTORS": "Auto","MARUTI": "Auto","M&M": "Auto",
-    "INFY": "IT","TCS": "IT","WIPRO": "IT","HCLTECH": "IT",
-    "SUNPHARMA": "Pharma","CIPLA": "Pharma","DRREDDY": "Pharma",
-    "HDFCBANK": "Pvt_Bank","ICICIBANK": "Pvt_Bank","KOTAKBANK": "Pvt_Bank",
-    "ITC": "FMCG","NESTLEIND": "FMCG","HINDUNILVR": "FMCG",
-    "TATASTEEL": "Metal","JSWSTEEL": "Metal","HINDALCO": "Metal",
-    "SBIN": "Psu_Bank","BANKBARODA": "Psu_Bank","PNB": "Psu_Bank",
+    # Energy
+    "ADANIGREEN": "Energy","IOC": "Energy","POWERGRID": "Energy","CGPOWER": "Energy",
+    "ADANIENSOL": "Energy","NHPC": "Energy","BPCL": "Energy","IGL": "Energy",
+    "JSWENERGY": "Energy","NTPC": "Energy","PETRONET": "Energy","BDL": "Energy",
+    "ONGC": "Energy","SOLARINDS": "Energy","GMRAIRPORT": "Energy","INOXWIND": "Energy",
+    "COALINDIA": "Energy","IREDA": "Energy","TORNTPOWER": "Energy","MAZDOCK": "Energy",
+    "OIL": "Energy","BLUESTARCO": "Energy","RELIANCE": "Energy","TATAPOWER": "Energy",
+
+    # Realty
+    "OBEROIRLTY": "Realty","NBCC": "Realty","GODREJPROP": "Realty","DLF": "Realty",
+    "PHOENIXLTD": "Realty","NCC": "Realty","PRESTIGE": "Realty","LODHA": "Realty",
+
+    # Auto
+    "SONACOMS": "Auto","BOSCHLTD": "Auto","BAJAJ-AUTO": "Auto","ASHOKLEY": "Auto",
+    "TVSMOTOR": "Auto","EICHERMOT": "Auto","UNOMINDA": "Auto","TATAMOTORS": "Auto",
+    "M&M": "Auto","MARUTI": "Auto","TIINDIA": "Auto","BHARATFORG": "Auto",
+    "EXIDEIND": "Auto","HEROMOTOCO": "Auto","MOTHERSON": "Auto","TITAGARH": "Auto",
+
+    # IT
+    "OFSS": "IT","KPITTECH": "IT","TAMS": "IT","PERSISTENT": "IT",
+    "HFCL": "IT","MPHASIS": "IT","CYIENT": "IT","TATAELXSI": "IT",
+    "TATATECH": "IT","LTIM": "IT","TECHM": "IT","WIPRO": "IT",
+    "COFORGE": "IT","TCS": "IT","HCLTECH": "IT","INFY": "IT",
+    "LTTS": "IT","KAYNES": "IT",
+
+    # Pharma
+    "AUROPHARMA": "Pharma","GLENMARK": "Pharma","LUPIN": "Pharma","ALKEM": "Pharma",
+    "LAURUSLABS": "Pharma","BIOCON": "Pharma","ZYDUSLIFE": "Pharma","TORNTPHARM": "Pharma",
+    "FORTIS": "Pharma","DIVISLAB": "Pharma","SUNPHARMA": "Pharma","DRREDDY": "Pharma",
+    "MANKIND": "Pharma","CIPLA": "Pharma","PPLPHARMA": "Pharma",
+
+    # Pvt Bank
+    "AXISBANK": "Pvt_Bank","FEDERALBNK": "Pvt_Bank","KOTAKBANK": "Pvt_Bank",
+    "BANDHANBNK": "Pvt_Bank","INDUSINDBK": "Pvt_Bank","IDFCFIRSTB": "Pvt_Bank",
+    "ICICIBANK": "Pvt_Bank","RBLBANK": "Pvt_Bank","HDFCBANK": "Pvt_Bank",
+
+    # Fin Service
+    "ANGELONE": "Fin_Service","BSE": "Fin_Service","SHRIRAMFIN": "Fin_Service",
+    "CHOLAFIN": "Fin_Service","ICICIPRULI": "Fin_Service","SBICARD": "Fin_Service",
+    "POLICYBZR": "Fin_Service","CDSL": "Fin_Service","SBILIFE": "Fin_Service",
+    "PAYTM": "Fin_Service","ICICIGI": "Fin_Service","IIFL": "Fin_Service",
+    "HDFCLIFE": "Fin_Service","IRFC": "Fin_Service","BAJAJFINSV": "Fin_Service",
+
+    # FMCG
+    "BRITANNIA": "FMCG","ETERNAL": "FMCG","HINDUNILVR": "FMCG","PATANJALI": "FMCG",
+    "SUPREMEIND": "FMCG","COLPAL": "FMCG","DMART": "FMCG","UNITDSPR": "FMCG",
+    "MARICO": "FMCG","ITC": "FMCG","TATACONSUM": "FMCG","NESTLEIND": "FMCG",
+    "DABUR": "FMCG","KALYANKJIL": "FMCG","NYKAA": "FMCG","VBL": "FMCG","GODREJCP": "FMCG",
+
+    # Cement
+    "AMBUJACEM": "Cement","SHREECEM": "Cement","ULTRACEMCO": "Cement","DALBHARAT": "Cement",
+
+    # Nifty Mid Select
+    "HINDPETRO": "NiftyMidSel","FEDERALBNK": "NiftyMidSel","LUPIN": "NiftyMidSel",
+    "POLYCAB": "NiftyMidSel","CONCOR": "NiftyMidSel","VOLTAS": "NiftyMidSel",
+    "ASHOKLEY": "NiftyMidSel","PIIND": "NiftyMidSel","PERSISTENT": "NiftyMidSel",
+    "INDHOTEL": "NiftyMidSel","JUBLFOOD": "NiftyMidSel","MPHASIS": "NiftyMidSel",
+    "ASTRAL": "NiftyMidSel","RVNL": "NiftyMidSel","GODREJPROP": "NiftyMidSel",
+    "PAGEIND": "NiftyMidSel","HDFCAMC": "NiftyMidSel","AUROPHARMA": "NiftyMidSel",
+
+    # Metal
+    "NATIONALUM": "Metal","ADANIENT": "Metal","HINDZINC": "Metal","NMDC": "Metal",
+    "SAIL": "Metal","APLAPOLLO": "Metal","JSWSTEEL": "Metal","VEDL": "Metal",
+    "JINDALSTEL": "Metal","TATASTEEL": "Metal","HINDALCO": "Metal",
+
+    # PSU Bank
+    "BANKINDIA": "Psu_Bank","UNIONBANK": "Psu_Bank","PNB": "Psu_Bank",
+    "CANBK": "Psu_Bank","BANKBARODA": "Psu_Bank","INDIANB": "Psu_Bank","SBIN": "Psu_Bank",
 }
 
 # =========================
